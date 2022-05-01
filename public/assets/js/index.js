@@ -68,6 +68,38 @@ function viewAllEmployees() {
     mainMenu();
 }
 
+function addRole() {
+    server.viewRoles();
+    const questions = [
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    message: 'What is this role to be called?',
+                    name: 'title'
+                },
+                {
+                    type: 'input',
+                    message: 'What is this role\'s department? (Please see above for reference)',
+                    name: 'department_id'
+                },
+                {
+                    type: 'input',
+                    message: 'What salary is this role expected to receive?',
+                    name: 'salary'
+                }
+            ])
+            .then((response) => {
+                if (server.addRole(title, department_id, salary) === false) {
+                    mainMenu();
+                } else {
+                    mainMenu();
+                }
+            })
+    ];
+}
+
+
 function addEmployee() {
     server.viewRoles();
     const questions = [
@@ -77,17 +109,17 @@ function addEmployee() {
                     type: 'input',
                     message: 'What is this employee\'s first name?',
                     name: 'firstName'
-                }
+                },
                 {
                     type: 'input',
                     message: 'What is this employee\'s last name?',
                     name: 'lastName'
-                }
+                },
                 {
                     type: 'input',
-                    message: 'What is this employee\'s role ID (Please see above for reference)?',
+                    message: 'What is this employee\'s role ID? (Please see above for reference)',
                     name: 'role_id'
-                }
+                },
                 {
                     type: 'input',
                     message: 'Who is this employee\'s manager?',
