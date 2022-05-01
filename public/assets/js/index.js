@@ -51,28 +51,58 @@ function mainMenu() {
 }
 
 function viewAllRoles() {
-
-    // TODO: db.query all roles
+    // db.query all roles
+    server.viewRoles();
     mainMenu();
 }
 
 function viewAllDepartments() {
-
-    // TODO: db.query all departments
+    // db.query all departments
+    server.viewDepartments();
     mainMenu();
 }
 
 function viewAllEmployees() {
-
-    // TODO: db.query all employees
+    // db.query all employees
+    server.viewEmployees();
     mainMenu();
 }
 
-
-function updateEmployeeRole() {
-
+function addEmployee() {
+    server.viewRoles();
+    const questions = [
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    message: 'What is this employee\'s first name?',
+                    name: 'firstName'
+                }
+                {
+                    type: 'input',
+                    message: 'What is this employee\'s last name?',
+                    name: 'lastName'
+                }
+                {
+                    type: 'input',
+                    message: 'What is this employee\'s role ID (Please see above for reference)?',
+                    name: 'role_id'
+                }
+                {
+                    type: 'input',
+                    message: 'Who is this employee\'s manager?',
+                    name: 'manager'
+                }
+            ])
+            .then((response) => {
+                if (server.addEmployee(firstName, lastName, role_id, manager) === false) {
+                    mainMenu();
+                } else {
+                    mainMenu();
+                }
+            })
+    ];
 }
-
 
 
 function prompt() {
