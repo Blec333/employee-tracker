@@ -55,3 +55,9 @@ function viewAllRoles() {
     // TODO: db.query all roles
     mainMenu();
 }
+
+function viewAllDepartments() {
+
+    // TODO: db.query all departments
+    mainMenu();
+}
