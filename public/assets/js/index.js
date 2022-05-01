@@ -68,7 +68,30 @@ function viewAllEmployees() {
     mainMenu();
 }
 
+function addDepartment() {
+    server.viewDepartments();
+    const questions = [
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    message: 'What is this dept to be called?',
+                    name: 'name'
+                }
+            ])
+            .then((response) => {
+                if addDepartment(response.name) === false) {
+                    mainMenu();
+                } else {
+                    mainMenu();
+                }
+            })
+    ];
+}
+
+
 function addRole() {
+    server.viewDepartments();
     server.viewRoles();
     const questions = [
         inquirer
@@ -90,7 +113,7 @@ function addRole() {
                 }
             ])
             .then((response) => {
-                if (server.addRole(title, department_id, salary) === false) {
+                if (server.addRole(response.title, response.department_id, response.salary) === false) {
                     mainMenu();
                 } else {
                     mainMenu();
@@ -127,7 +150,7 @@ function addEmployee() {
                 }
             ])
             .then((response) => {
-                if (server.addEmployee(firstName, lastName, role_id, manager) === false) {
+                if (server.addEmployee(response.firstName, response.lastName, response.role_id, response.manager) === false) {
                     mainMenu();
                 } else {
                     mainMenu();
