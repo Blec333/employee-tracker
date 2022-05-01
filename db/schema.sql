@@ -17,6 +17,7 @@ CREATE TABLE roles (
   FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
 );
 
+
 CREATE TABLE employees (
   id INT AUTO_INCREMENT PRIMARY KEY,
   firstName VARCHAR(100) NOT NULL,
