@@ -71,6 +71,18 @@ function viewEmployees() {
 
 // -- WHEN I choose to add a department
 // -- THEN I am prompted to enter the name of the department and that department is added to the database
+function addDepartment(name) {
+  if (name) {
+  db.query(`INSERT INTO departments (department) VALUES ("${name}")`, function (err, results) {
+    console.table(`Added ${results} to table!`);
+    return true;
+  });
+  } else {
+    console.log(`Provided information was incomplete, please try again`);
+    console.log(`Entered department name was: ${name}`);
+    return false;
+  }
+}
 
 
 // -- WHEN I choose to add a role
