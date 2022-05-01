@@ -87,6 +87,20 @@ function addDepartment(name) {
 
 // -- WHEN I choose to add a role
 // -- THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
+function addRole(title, department_id, salary) {
+  if (title && department_id && salary) {
+  db.query(`INSERT INTO roles (title, department_id, salary) VALUES ("${title}", ${department_id}, "${salary}")`, function (err, results) {
+    console.table(`Added ${results} to table!`);
+    return true;
+  });
+} else {
+  console.log(`Provided information was incomplete, please try again`);
+  console.log(`Entered title was: ${title}`);
+  console.log(`Entered department_id was: ${department_id}`);
+  console.log(`Entered salary was: ${salary}`);
+  return false;
+}
+}
 
 
 // -- WHEN I choose to add an employee
