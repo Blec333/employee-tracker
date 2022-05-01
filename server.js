@@ -105,6 +105,22 @@ function addRole(title, department_id, salary) {
 
 // -- WHEN I choose to add an employee
 // -- THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
+function addEmployee(firstName, lastName, role_id, manager) {
+  if (firstName && lastName && role_id && manager) {
+  db.query(`INSERT INTO employees (firstName, lastName, role_id, manager) VALUES ("${firstName}", "${lastName}", ${role_id}, ${manager})`, function (err, results) {
+    console.table(`Added ${results} to table!`);
+    return true;
+  });
+} else {
+  console.log(`Provided information was incomplete, please try again`);
+  console.log(`Entered first name was: ${firstName}`);
+  console.log(`Entered last name was: ${lastName}`);
+  console.log(`Entered role ID was: ${role_id}`);
+  console.log(`Entered manager was: ${manager}`);
+  return false;
+}
+}
+
 
 // -- WHEN I choose to update an employee role
 // -- THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
