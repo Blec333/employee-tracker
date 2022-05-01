@@ -61,3 +61,9 @@ function viewAllDepartments() {
     // TODO: db.query all departments
     mainMenu();
 }
+
+function viewAllEmployees() {
+
+    // TODO: db.query all employees
+    mainMenu();
+}
