@@ -67,3 +67,8 @@ function viewAllEmployees() {
     // TODO: db.query all employees
     mainMenu();
 }
+
+
+function updateEmployeeRole() {
+
+}
