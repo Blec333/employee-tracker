@@ -26,6 +26,21 @@ const db = mysql.createConnection(
 
 
 
+function createTables() {
+  db.query('SOURCE ./db/schema.sql', function (err, results) {
+    console.log(results);
+  });
+}
+
+
+function seedTables() {
+  db.query('SOURCE ./db/seeds.sql', function (err, results) {
+    console.log(results);
+  });
+}
+
+
+
 
 // -- WHEN I choose to view all departments
 // -- THEN I am presented with a formatted table showing department names and department ids
