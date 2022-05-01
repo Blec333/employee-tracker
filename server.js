@@ -61,6 +61,12 @@ function viewRoles() {
 
 // -- WHEN I choose to view all employees
 // -- THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
+function viewEmployees() {
+  db.query('SELECT e.id, e.firstName, e.lastName, r.title, d.department, r.salary, e.manager FROM employees e LEFT JOIN roles r ON e.role_id = r.id LEFT JOIN departments d ON r.department_id = d.id', function (err, results) {
+    console.table(results);
+  });
+}
+
 
 
 // -- WHEN I choose to add a department
