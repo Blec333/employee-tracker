@@ -49,3 +49,9 @@ function mainMenu() {
             )
     ];
 }
+
+function viewAllRoles() {
+
+    // TODO: db.query all roles
+    mainMenu();
+}
