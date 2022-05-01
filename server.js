@@ -53,7 +53,7 @@ function viewDepartments() {
 // -- WHEN I choose to view all roles
 // -- THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
 function viewRoles() {
-  db.query('SELECT title, department, salary FROM roles AS r INNER JOIN departments AS d ON r.department_id = d.id', function (err, results) {
+  db.query('SELECT id, title, department, salary FROM roles AS r INNER JOIN departments AS d ON r.department_id = d.id', function (err, results) {
     console.table(results);
   });
 }
