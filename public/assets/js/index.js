@@ -72,3 +72,20 @@ function viewAllEmployees() {
 function updateEmployeeRole() {
 
 }
+
+
+
+function prompt() {
+    const questions = [
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    message: 'What is ?',
+                    name: 'name'
+                }
+            ])
+            .then((response) => {
+            })
+    ];
+}
