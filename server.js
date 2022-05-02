@@ -37,31 +37,6 @@ app.listen(PORT, () => {
 });
 
 
-//==================================================================================================================
-//CREATE DB AND TABLES THEN FILL====================================================================================
-//==================================================================================================================
-function createTables() {
-  return new Promise((resolve, reject) => {
-    db.query('SOURCE ./db/schema.sql', function (reject, results) {
-      resolve(console.log(''));
-    });
-  });
-}
-
-
-function seedTables() {
-  return new Promise((resolve, reject) => {
-    db.query('SOURCE ./db/seeds.sql', function (reject, results) {
-      resolve(console.log(''));
-    });
-  });
-}
-//==================================================================================================================
-//CREATE DB AND TABLES THEN FILL====================================================================================
-//==================================================================================================================
-
-
-
 
 //==================================================================================================================
 //PRIMARY FUNCTION - MAIN MENU======================================================================================
@@ -439,14 +414,17 @@ function prompt() {
         }
       ])
       .then((response) => {
+
+      })
+      .then((response) => {
+        
       })
   ];
 }
 
 
 
-async function init() {
-  try {
+function init() {
   console.log(`                                    `);
   console.log(`  _____           _                 `);
   console.log(` |   __|_____ ___| |___ _ _ ___ ___ `);
@@ -460,16 +438,26 @@ async function init() {
   console.log(` |_|_|_|__,|_|_|__,|_  |___|_|      `);
   console.log(`                   |___|            `);
   console.log(`                                    `);
-  const response = await createTables();
-  const seedReponse = await seedTables();
-  const menuResponse = await mainMenu();
-  } catch (err) {
-    console.log(err);
+  new Promise((resolve, reject) => {
+    db.query('SOURCE ./db/schema.sql', function (err, results) {
+      resolve(console.log(''));
+    });
+  })
+    .then((response) => {
+      new Promise((resolve, reject) => {
+        db.query('SOURCE ./db/seeds.sql', function (err, results) {
+          resolve(console.log(''));
+        });
+      })
+        .then((response) => {
+          mainMenu();
+        })
+        .catch((err) => {
+          console.log('error thrown');
+          console.log(err.message);
+        });
+      });
   }
-}
 
 init();
 
-// module.exports = { db };
-
-// module.exports = { viewDepartments, viewRoles, viewEmployees,  addDepartment, addRole, addEmployee };
