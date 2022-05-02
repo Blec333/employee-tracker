@@ -27,22 +27,6 @@ const db = mysql.createConnection(
   console.log(`Connected to the company_db database.`)
 );
 
-
-
-function createTables() {
-  db.query('SOURCE ./db/schema.sql', function (err, results) {
-    console.log(results);
-  });
-}
-
-
-function seedTables() {
-  db.query('SOURCE ./db/seeds.sql', function (err, results) {
-    console.log(results);
-  });
-}
-
-
 // Default response for any other request (Not Found)
 app.use((req, res) => {
   res.status(404).end();
@@ -53,12 +37,39 @@ app.listen(PORT, () => {
 });
 
 
+//==================================================================================================================
+//CREATE DB AND TABLES THEN FILL====================================================================================
+//==================================================================================================================
+function createTables() {
+  return new Promise((resolve, reject) => {
+    db.query('SOURCE ./db/schema.sql', function (reject, results) {
+      resolve(console.log(''));
+    });
+  });
+}
+
+
+function seedTables() {
+  return new Promise((resolve, reject) => {
+    db.query('SOURCE ./db/seeds.sql', function (reject, results) {
+      resolve(console.log(''));
+    });
+  });
+}
+//==================================================================================================================
+//CREATE DB AND TABLES THEN FILL====================================================================================
+//==================================================================================================================
+
+
+
 
 //==================================================================================================================
 //PRIMARY FUNCTION - MAIN MENU======================================================================================
 //==================================================================================================================
 
 function mainMenu() {
+  
+  console.log(` `);
   const questions = [
     inquirer
       .prompt([
@@ -67,34 +78,34 @@ function mainMenu() {
           message: 'What would you like to do?:',
           name: 'nextAction',
           choices: [
-            'Update Employee Role',
-            'View All Roles',
-            'Add Role',
             'View All Departments',
-            'Add Department',
+            'View All Roles',
             'View All Employees',
+            'Add Department',
+            'Add Role',
             'Add Employee',
+            'Update Employee Role',
             'Quit'
           ]
         }
       ])
       .then((response) => {
         if (response.nextAction === 'Update Employee Role') {
-          updateEmployeeRole();
+          updateEmployeeRole(true);
         } else if (response.nextAction === 'View All Roles') {
-          viewRoles();
+          viewRoles(true);
         } else if (response.nextAction === 'Add Role') {
-          addRole();
+          addRole(true);
         } else if (response.nextAction === 'View All Departments') {
-          viewDepartments();
+          viewDepartments(true);
         } else if (response.nextAction === 'Add Department') {
-          addDepartment();
+          addDepartment(true);
         } else if (response.nextAction === 'View All Employees') {
-          viewEmployees();
+          viewEmployees(true);
         } else if (response.nextAction === 'Add Employee') {
-          addEmployees();
+          addEmployee(true);
         } else if (response.nextAction === 'Quit') {
-          quitApp();
+          quitApp(false);
         } else {
           console.log('Please choose a valid option.')
         }
@@ -105,8 +116,16 @@ function mainMenu() {
 
 // Quit the app message
 function quitApp() {
-  console.log('Bye!');
-  return;
+  return new Promise((resolve, reject) => {
+    db.end((err) => {
+     if (err) {
+      console.error('error during disconnection', err.stack)
+      return reject(err)
+     }
+     console.log('db has disconnected')
+     return resolve()
+    })
+});
 }
 
 //==================================================================================================================
@@ -115,54 +134,57 @@ function quitApp() {
 
 // -- WHEN I choose to view all departments
 // -- THEN I am presented with a formatted table showing department names and department ids
-function viewDepartments() {
-  console.log(` `);
-  db.query('SELECT * FROM departments', function (err, results) {
-    console.table(results);
+function viewDepartments(menuStatus) {
+  return new Promise((resolve, reject) => {
     console.log(` `);
-    mainMenu();
+    db.query('SELECT * FROM departments', function (err, results) {
+      resolve(console.table(results));
+      console.log(` `);
+      if (menuStatus === true) { mainMenu(); }
+    });
   });
 }
 
 // -- WHEN I choose to view all roles
 // -- THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-function viewRoles() {
+function viewRoles(menuStatus) {
   console.log(` `);
   db.query('SELECT r.id, title, d.department, r.salary FROM roles AS r INNER JOIN departments AS d ON r.department_id = d.id', function (err, results) {
     console.table(results);
     console.log(` `);
-    mainMenu();
+    if (menuStatus === true) { mainMenu(); }
   });
 }
 
 // -- WHEN I choose to view all employees
+
 // -- THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-function viewEmployees() {
+function viewEmployees(menuStatus) {
   console.log(` `);
   db.query(`SELECT e.id, e.firstName, e.lastName, r.title, d.department, r.salary, concat(m.firstName, ' ', m.lastName) AS managers FROM employees e LEFT JOIN employees m ON e.manager_id = m.id LEFT JOIN roles r ON e.role_id = r.id LEFT JOIN departments d ON r.department_id = d.id`, function (err, results) {
     console.table(results);
     console.log(` `);
-    mainMenu();
+    if (menuStatus === true) { mainMenu(); }
   });
 }
 
 // View managers function
-function viewManagers() {
+function viewManagers(menuStatus) {
   console.log(`Managers: `);
   db.query('SELECT id, firstName, lastName FROM employees WHERE manager_id IS NULL', function (err, results) {
     console.table(results);
     console.log(` `);
-    mainMenu();
+    if (menuStatus === true) { mainMenu(); }
   });
 }
 
 // View employee ids and names in one column function
-function viewEmployeeIDsNames() {
+function viewEmployeeIDsNames(menuStatus) {
   console.log(`Managers: `);
   db.query(`SELECT concat(id,' ', firstName,' ', lastName) AS employees FROM employees`, function (err, results) {
     console.table(results);
     console.log(` `);
-    mainMenu();
+    if (menuStatus === true) { mainMenu(); }
   });
 }
 
@@ -180,8 +202,7 @@ function viewEmployeeIDsNames() {
 // -- WHEN I choose to add a department
 // -- THEN I am prompted to enter the name of the department and that department is added to the database
 
-function addDepartment() {
-  viewDepartments();
+async function addDepartment(menuStatus) {
   const questions = [
     inquirer
       .prompt([
@@ -195,25 +216,25 @@ function addDepartment() {
         console.log(` `);
         if (response.name) {
           db.query(`INSERT INTO departments (department) VALUES ("${response.name}")`, function (err, results) {
-            console.table(`Added ${results} to table!`);
             console.log(` `);
-            mainMenu();
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
           console.log(`Entered department name was: ${response.name}`);
           console.log(` `);
-          mainMenu();
+          if (menuStatus === true) { mainMenu(); }
         }
+      }).then((response) => {
+        viewDepartments();
+        console.log(` `);
+        if (menuStatus === true) { mainMenu(); }
       })
   ];
 }
 
 // -- WHEN I choose to add a role
 // -- THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-function addRole() {
-  viewDepartments();
-  viewRoles();
+function addRole(menuStatus) {
   const questions = [
     inquirer
       .prompt([
@@ -237,9 +258,7 @@ function addRole() {
         if (response.title && response.department_id && response.salary) {
           console.log(` `);
           db.query(`INSERT INTO roles (title, department_id, salary) VALUES ("${response.title}", ${response.department_id}, "${response.salary}")`, function (err, results) {
-            console.table(`Added ${results} to table!`);
             console.log(` `);
-            mainMenu();
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
@@ -247,16 +266,19 @@ function addRole() {
           console.log(`Entered department_id was: ${response.department_id}`);
           console.log(`Entered salary was: ${response.salary}`);
           console.log(` `);
-          mainMenu();
+          if (menuStatus === true) { mainMenu(); }
         }
+      }).then((response) => {
+        viewRoles();
+        console.log(` `);
+        if (menuStatus === true) { mainMenu(); }
       })
   ];
 }
 
 // -- WHEN I choose to add an employee
 // -- THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-function addEmployee() {
-  viewRoles();
+function addEmployee(menuStatus) {
   const questions = [
     inquirer
       .prompt([
@@ -272,32 +294,34 @@ function addEmployee() {
         },
         {
           type: 'input',
-          message: 'What is this employee\'s role ID? (Please see above for reference)',
+          message: 'What is this employee\'s role ID?',
           name: 'role_id'
         },
         {
           type: 'input',
-          message: 'Who is this employee\'s manager?',
-          name: 'manager'
+          message: 'Who is this employee\'s manager (by ID)?',
+          name: 'manager_id'
         }
       ])
       .then((response) => {
         if (response.firstName && response.lastName && response.role_id && response.manager) {
           console.log(` `);
-          db.query(`INSERT INTO employees (firstName, lastName, role_id, manager) VALUES ("${response.firstName}", "${response.lastName}", ${response.role_id}, ${response.manager})`, function (err, results) {
-            console.table(`Added ${results} to table!`);
+          db.query(`INSERT INTO employees (firstName, lastName, role_id, manager) VALUES ("${response.firstName}", "${response.lastName}", ${response.role_id}, ${response.manager_id})`, function (err, results) {
             console.log(` `);
-            mainMenu();
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
           console.log(`Entered first name was: ${response.firstName}`);
           console.log(`Entered last name was: ${response.lastName}`);
           console.log(`Entered role ID was: ${response.role_id}`);
-          console.log(`Entered manager was: ${response.manager}`);
+          console.log(`Entered manager was: ${response.manager_id}`);
           console.log(` `);
-          mainMenu();
         }
+      }).then((response) => {
+        viewEmployees();
+        console.log(` `);
+      }).then((response) => {
+        if (menuStatus === true) { mainMenu(); }
       })
   ];
 }
@@ -315,9 +339,12 @@ function addEmployee() {
 
 // -- WHEN I choose to update an employee role
 // -- THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
-function updateEmployee() {
-  viewEmployees();
-  viewEmployeeIDsNames()
+function updateEmployee(menuStatus) {
+  console.log(` `);
+  viewEmployees(false);
+  console.log(` `);
+  viewEmployeeIDsNames(false);
+  console.log(` `);
   const questions = [
     inquirer
       .prompt([
@@ -372,7 +399,7 @@ function updateEmployee() {
           db.query(`INSERT INTO employees (firstName, lastName, role_id, manager) VALUES ("${response.firstName}", "${response.lastName}", ${response.role_id}, ${response.manager})`, function (err, results) {
             console.table(`Added ${results} to table!`);
             console.log(` `);
-            mainMenu();
+            if (menuStatus === true) { mainMenu(); }
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
@@ -381,7 +408,7 @@ function updateEmployee() {
           console.log(`Entered role ID was: ${response.role_id}`);
           console.log(`Entered manager was: ${response.manager}`);
           console.log(` `);
-          mainMenu();
+          if (menuStatus === true) { mainMenu(); }
         }
 
 
@@ -443,7 +470,8 @@ function prompt() {
 
 
 
-function init() {
+async function init() {
+  try {
   console.log(`                                    `);
   console.log(`  _____           _                 `);
   console.log(` |   __|_____ ___| |___ _ _ ___ ___ `);
@@ -457,9 +485,12 @@ function init() {
   console.log(` |_|_|_|__,|_|_|__,|_  |___|_|      `);
   console.log(`                   |___|            `);
   console.log(`                                    `);
-  createTables();
-  seedTables();
-  mainMenu();
+  const response = await createTables();
+  const seedReponse = await seedTables();
+  const menuResponse = await mainMenu();
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 init();
