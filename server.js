@@ -68,7 +68,6 @@ function seedTables() {
 //==================================================================================================================
 
 function mainMenu() {
-  
   console.log(` `);
   const questions = [
     inquirer
@@ -84,14 +83,14 @@ function mainMenu() {
             'Add Department',
             'Add Role',
             'Add Employee',
-            'Update Employee Role',
+            'Update Employee',
             'Quit'
           ]
         }
       ])
       .then((response) => {
-        if (response.nextAction === 'Update Employee Role') {
-          updateEmployeeRole(true);
+        if (response.nextAction === 'Update Employee') {
+          updateEmployee(true);
         } else if (response.nextAction === 'View All Roles') {
           viewRoles(true);
         } else if (response.nextAction === 'Add Role') {
@@ -340,11 +339,6 @@ function addEmployee(menuStatus) {
 // -- WHEN I choose to update an employee role
 // -- THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
 function updateEmployee(menuStatus) {
-  console.log(` `);
-  viewEmployees(false);
-  console.log(` `);
-  viewEmployeeIDsNames(false);
-  console.log(` `);
   const questions = [
     inquirer
       .prompt([
@@ -371,54 +365,35 @@ function updateEmployee(menuStatus) {
         {
           type: 'input',
           message: 'Who is this employee\'s manager?',
-          name: 'manager'
+          name: 'manager_id'
         }
       ])
       .then((response) => {
-
-
-
-
-
-
-
-
-
-
-
-
-
-        if (response.firstName && response.lastName && response.role_id && response.manager) {
-          console.log(` `);
-
-
-          // `UPDATE employees SET firstName = ${response.firstName} WHERE id = '${response.id}'`;
-
-
-
-          db.query(`INSERT INTO employees (firstName, lastName, role_id, manager) VALUES ("${response.firstName}", "${response.lastName}", ${response.role_id}, ${response.manager})`, function (err, results) {
-            console.table(`Added ${results} to table!`);
+        console.log(response);
+        if (response.firstName !== '') {
+          db.query(`UPDATE employees SET firstName = '${response.firstName}' WHERE id = ?`, response.id, function (err, results) {
             console.log(` `);
-            if (menuStatus === true) { mainMenu(); }
           });
-        } else {
-          console.log(`Provided information was incomplete, please try again`);
-          console.log(`Entered first name was: ${response.firstName}`);
-          console.log(`Entered last name was: ${response.lastName}`);
-          console.log(`Entered role ID was: ${response.role_id}`);
-          console.log(`Entered manager was: ${response.manager}`);
-          console.log(` `);
-          if (menuStatus === true) { mainMenu(); }
         }
-
-
-
-
-
-
-
-
-
+        if (response.lastName !== '') {
+          db.query(`UPDATE employees SET firstName = '${response.lastName}' WHERE id = ?`, response.id, function (err, results) {
+            console.log(` `);
+          });
+        }
+        if (response.role_id !== '') {
+          db.query(`UPDATE employees SET firstName = ${response.role_id} WHERE id = ?`, response.id, function (err, results) {
+            console.log(` `);
+          });
+        }
+        if (response.manager_id !== '') {
+          db.query(`UPDATE employees SET firstName = ${response.manager_id} WHERE id = ?`, response.id, function (err, results) {
+            console.log(` `);
+          });
+        }
+      })
+      .then((response) => {
+        console.log(` `);
+        if (menuStatus === true) { mainMenu(); }
       })
   ];
 }
