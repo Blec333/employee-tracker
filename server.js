@@ -52,6 +52,8 @@ function mainMenu() {
             'View All Departments',
             'View All Roles',
             'View All Employees',
+            'View All Managers',
+            'View Personnel By Department',
             'Add Department',
             'Add Role',
             'Add Employee',
@@ -70,6 +72,10 @@ function mainMenu() {
           viewRoles(true);
         } else if (response.nextAction === 'View All Employees') {
           viewEmployees(true);
+        } else if (response.nextAction === 'View All Managers') {
+          viewManagers(true);
+        } else if (response.nextAction === 'View Personnel By Department') {
+          viewPersonnelByDept(true);
         } else if (response.nextAction === 'Add Department') {
           addDepartment(true);
         } else if (response.nextAction === 'Add Role') {
@@ -94,6 +100,9 @@ function mainMenu() {
   ];
 }
 
+
+
+
 // Quit the app message
 function quitApp() {
   process.exit();
@@ -117,8 +126,9 @@ function viewDepartments(menuStatus) {
 // -- WHEN I choose to view all roles
 // -- THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
 function viewRoles(menuStatus) {
-  db.query(`SELECT r.id, 
-  title, 
+  db.query(`SELECT 
+  r.id,
+  r.title, 
   concat(d.id, ' - ', d.department) AS department, 
   r.salary 
   FROM roles r 
@@ -133,8 +143,7 @@ function viewRoles(menuStatus) {
 function viewEmployees(menuStatus) {
   db.query(`SELECT 
   e.id, 
-  e.firstName, 
-  e.lastName, 
+  concat(e.firstName, ' ', e.lastName) AS name, 
   concat(r.id, ' - ', r.title) AS title, 
   concat(d.id, ' - ', d.department) AS department, 
   r.salary, 
@@ -151,7 +160,24 @@ function viewEmployees(menuStatus) {
 // View managers function
 function viewManagers(menuStatus) {
   console.log(`Managers: `);
-  db.query('SELECT id, firstName, lastName FROM employees WHERE manager_id IS NULL', function (err, results) {
+  db.query(`SELECT id, concat(firstName, ' ', lastName) AS name FROM employees WHERE manager_id IS NULL`, function (err, results) {
+    console.table(results);
+    mainMenu();
+  });
+}
+
+function viewPersonnelByDept(menuStatus) {
+  db.query(`SELECT 
+  concat(d.id, ' - ', d.department) AS department, 
+  concat(e.id, ' - ', e.firstName, ' ', e.lastName) AS name, 
+  concat(r.id, ' - ', r.title) AS title, 
+  r.salary, 
+  concat(m.id, ' - ', m.firstName, ' ', m.lastName) AS managers 
+  FROM employees e 
+  LEFT JOIN employees m ON e.manager_id = m.id 
+  LEFT JOIN roles r ON e.role_id = r.id 
+  LEFT JOIN departments d ON r.department_id = d.id
+  ORDER BY d.id ASC, r.id ASC`, function (err, results) {
     console.table(results);
     mainMenu();
   });
@@ -166,7 +192,7 @@ function viewManagers(menuStatus) {
 //ADD THINGS========================================================================================================
 // -- WHEN I choose to add a department
 // -- THEN I am prompted to enter the name of the department and that department is added to the database
-async function addDepartment(menuStatus) {
+function addDepartment(menuStatus) {
   const questions = [
     inquirer
       .prompt([
@@ -179,14 +205,13 @@ async function addDepartment(menuStatus) {
       .then((response) => {
         if (response.name) {
           db.query(`INSERT INTO departments (department) VALUES ("${response.name}")`, function (err, results) {
+            mainMenu();
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
           console.log(`Entered department name was: ${response.name}`);
+          mainMenu();
         }
-      })
-      .then((response) => {
-        mainMenu();
       })
   ];
 }
@@ -217,6 +242,7 @@ function addRole(menuStatus) {
         if (response.title && response.department_id && response.salary) {
           console.log(` `);
           db.query(`INSERT INTO roles (title, department_id, salary) VALUES ("${response.title}", ${response.department_id}, "${response.salary}")`, function (err, results) {
+            mainMenu();
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
@@ -225,8 +251,6 @@ function addRole(menuStatus) {
           console.log(`Entered salary was: ${response.salary}`);
           mainMenu();
         }
-      }).then((response) => {
-        mainMenu();
       })
   ];
 }
@@ -261,6 +285,7 @@ function addEmployee(menuStatus) {
       .then((response) => {
         if (response.firstName && response.lastName && response.role_id && response.manager_id) {
           db.query(`INSERT INTO employees (firstName, lastName, role_id, manager_id) VALUES ("${response.firstName}", "${response.lastName}", ${response.role_id}, ${response.manager_id})`, function (err, results) {
+            mainMenu();
           });
         } else {
           console.log(`Provided information was incomplete, please try again`);
@@ -268,9 +293,8 @@ function addEmployee(menuStatus) {
           console.log(`Entered last name was: ${response.lastName}`);
           console.log(`Entered role ID was: ${response.role_id}`);
           console.log(`Entered manager was: ${response.manager_id}`);
+          mainMenu();
         }
-      }).then((response) => {
-        mainMenu();
       })
   ];
 }
@@ -363,12 +387,10 @@ function deleteEmployee(menuStatus) {
       .then((response) => {
         if (response.firstName !== '') {
           db.query(`DELETE FROM employees WHERE id = ?`, response.id, function (err, results) {
+            mainMenu();
             console.log(` `);
           });
         }
-      })
-      .then((response) => {
-        mainMenu();
       })
   ];
 }
@@ -390,9 +412,6 @@ function deleteRole(menuStatus) {
           });
         }
       })
-      .then((response) => {
-        mainMenu();
-      })
   ];
 }
 
@@ -412,9 +431,6 @@ function deleteDepartment(menuStatus) {
             console.log(` `);
           });
         }
-      })
-      .then((response) => {
-        mainMenu();
       })
   ];
 }
@@ -437,6 +453,8 @@ function init() {
   console.log(` |_|_|_|__,|_|_|__,|_  |___|_|      `);
   console.log(`                   |___|            `);
   console.log(`                                    `);
+  console.log(`                                    `);
+  console.log(``);
   mainMenu();
 }
 
